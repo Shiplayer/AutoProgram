@@ -17,21 +17,25 @@ public class CompareTwoXLSFiles {
     private Workbook first;
     private Workbook second;
     private Workbook result;
+    private Sheet notFound;
 
     public static void main(String[] args) throws IOException {
         new CompareTwoXLSFiles().run();
     }
 
     public void run() throws IOException {
-        first = new HSSFWorkbook(new FileInputStream("xls/Оборотно-Сальдовый  2015 по 2017.xls"));
-        second = new HSSFWorkbook(new FileInputStream("xls/Анализ субконто на 01 янв  2018 примерно.xls"));
+        second = new HSSFWorkbook(new FileInputStream("xls/остатки товара на 01 янв 2018 из 1 с на проверку.xls"));
+        first = new HSSFWorkbook(new FileInputStream("xls/Расширенный отчет об остатках на 01 янв 2018 года из АИ.xls"));
+        result = new HSSFWorkbook();
+        notFound = result.createSheet("not found");
 
         loadDataToHashMap();
         checkDataFromHashMap();
 
-        result = new HSSFWorkbook();
+
         writeInSheet(result.createSheet());
-        result.write(new FileOutputStream("xls/result.xls"));
+        writeInSheetWithZeroKey(result.createSheet("Zero"));
+        result.write(new FileOutputStream("xls/result_остатки.xls"));
         result.close();
     }
 
@@ -41,25 +45,55 @@ public class CompareTwoXLSFiles {
             Pair<Double, Double> pair = hashMap.get(key);
             if(pair.getKey() != pair.getValue() && pair.getValue() != 0) {
                 Row row = sheet.createRow(indexRow++);
-                row.createCell(0).setCellValue(key);
-                row.createCell(1).setCellValue(pair.getKey());
-                row.createCell(2).setCellValue(pair.getValue());
+                putValueInRow(row, key, pair.getKey(), pair.getValue());
             }
         }
     }
 
+    private void writeInSheetWithZeroKey(Sheet sheet){
+        int indexRow = 0;
+        for(String key : hashMap.keySet()){
+            Pair<Double, Double> pair = hashMap.get(key);
+            if(pair.getKey() != 0) {
+                Row row = sheet.createRow(indexRow++);
+                putValueInRow(row, key, pair.getKey(), pair.getValue());
+            }
+        }
+    }
+
+    private void putValueInRow(Row row, String key, double count, double cost){
+        row.createCell(0).setCellValue(key);
+        row.createCell(1).setCellValue(count);
+        row.createCell(2).setCellValue(cost);
+    }
+
     private void checkDataFromHashMap() {
         Sheet sheet = first.getSheetAt(0);
-        for (Iterator<Row> it = sheet.rowIterator(); it.hasNext(); ) {
+        boolean readContinue = false;
+        Iterator<Row> it = sheet.rowIterator();
+        while(it.hasNext()) {
             Row row = it.next();
-            if (row.getRowNum() % 22 > 2) {
-                Cell cell = row.getCell(0);
-                if(cell.getStringCellValue().isEmpty())
-                    break;
-                if (!hashMap.containsKey(cell.getStringCellValue()))
-                    System.err.println(cell.getStringCellValue());
-                else
-                    hashMap.put(cell.getStringCellValue(), updateDegreePair(hashMap.get(cell.getStringCellValue()), new Pair<>(row.getCell(6).getNumericCellValue(), row.getCell(7).getNumericCellValue())));
+            if (row.getRowNum() > 5) {
+                Cell cell = row.getCell(4);
+                try {
+                    if (cell.getCellStyle().getFillForegroundColor() == 10) {
+                        readContinue = true;
+                        continue;
+                    }
+                    if (cell.getStringCellValue().isEmpty())
+                        readContinue = false;
+                    if (readContinue) {
+                        if (!hashMap.containsKey(cell.getStringCellValue())) {
+                            System.err.println(cell.getStringCellValue() + " " + cell.getRow().getRowNum() + " " + cell.getCellStyle().getFillForegroundColor());
+                            putValueInRow(notFound.createRow(notFound.getLastRowNum() + 1), cell.getStringCellValue(), row.getCell(7).getNumericCellValue(), row.getCell(9).getNumericCellValue());
+                        }
+                        else
+                            hashMap.put(cell.getStringCellValue(), updateDegreePair(hashMap.get(cell.getStringCellValue()), new Pair<>(row.getCell(7).getNumericCellValue(), row.getCell(9).getNumericCellValue())));
+                    }
+                } catch (NullPointerException e) {
+                    System.err.println(row.getRowNum());
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -72,13 +106,13 @@ public class CompareTwoXLSFiles {
         Sheet sheet = second.getSheetAt(0);
         for (Iterator<Row> it = sheet.rowIterator(); it.hasNext(); ) {
             Row row = it.next();
-            if(row.getRowNum() > 6){
-                Cell cell = row.getCell(0);
-                if(cell.getCellStyle().getFillForegroundColor() == 30) {
+            if(row.getRowNum() > 5){
+                Cell cell = row.getCell(2);
+                if(cell.getCellStyle().getFillForegroundColor() == 64) {
                     if(hashMap.containsKey(cell.getStringCellValue()))
-                        hashMap.put(cell.getStringCellValue(), updatePair(hashMap.get(cell.getStringCellValue()), new Pair<>(row.getCell(6).getNumericCellValue(), row.getCell(7).getNumericCellValue())));
+                        hashMap.put(cell.getStringCellValue(), updatePair(hashMap.get(cell.getStringCellValue()), new Pair<>(row.getCell(3).getNumericCellValue(), row.getCell(5).getNumericCellValue())));
                     else
-                        hashMap.put(cell.getStringCellValue(), new Pair<>(row.getCell(6).getNumericCellValue(), row.getCell(7).getNumericCellValue()));
+                        hashMap.put(cell.getStringCellValue(), new Pair<>(row.getCell(3).getNumericCellValue(), row.getCell(5).getNumericCellValue()));
                 }
             }
         }
