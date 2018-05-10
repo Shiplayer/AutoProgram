@@ -1,3 +1,6 @@
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -8,15 +11,27 @@ import java.nio.charset.Charset;
 
 public class Test {
     private Robot robot;
-    public static void main(String[] args) throws UnsupportedEncodingException, AWTException, InterruptedException {
-        String str = "1 750.00";
+    public static void main(String[] args) throws IOException, AWTException, InterruptedException, SAXException, ParserConfigurationException {
+        /*String str = "1 750.00";
         String newStr = new String("1 750.00".getBytes(), "UTF-8");
         for(int i = 0; i < newStr.length(); i++){
             if(newStr.charAt(i) >= '0' && newStr.charAt(i) <= '9') {
                 System.out.print(newStr.charAt(i));
             } else if(newStr.charAt(i) == '.')
                 System.out.print(newStr.charAt(i));
-        }
+        }*/
+
+        /*        outer:
+                for(int i = 0; i < 3; i++)
+                {
+                    for(int j = 3; j >= 0; j--)
+                    {
+                        if(i == j) continue outer;
+                        System.out.println(i + " " + j);
+                    }
+
+        }*/
+        OrderOutfitXmlToXls order = new OrderOutfitXmlToXls("xml/апрель  16.04  ИП заказ наряды.xml.tmp.xml");
         //System.out.println(Double.parseDouble(str.replaceAll("[ ]", "")));
     }
 
