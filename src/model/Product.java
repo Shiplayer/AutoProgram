@@ -8,4 +8,20 @@ public class Product {
         this.originalCode = originalCode;
         this.npp = Integer.parseInt(npp);
     }
+
+    public String getOriginalCode() {
+        return originalCode;
+    }
+
+    public int getNpp() {
+        return npp;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "originalCode='" + originalCode + '\'' +
+                ", npp=" + npp +
+                '}';
+    }
 }

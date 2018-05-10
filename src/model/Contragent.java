@@ -2,11 +2,19 @@ package model;
 
 public class Contragent {
     public String name;
-    public String npp;
+    public int npp;
 
     public Contragent(String name, String npp){
         this.name = name;
-        this.npp = npp;
+        this.npp = Integer.parseInt(npp);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getNpp() {
+        return npp;
     }
 
     @Override

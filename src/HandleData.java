@@ -7,14 +7,24 @@ import java.io.*;
 import java.util.Arrays;
 
 public class HandleData {
+    private BufferedReader bf;
+    private Workbook workbook;
+
+    public HandleData(String fileName) throws FileNotFoundException {
+        BufferedReader bf = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
+        Workbook workbook = new HSSFWorkbook();
+    }
 
     public static void main(String[] args) throws IOException {
-        new HandleData().run();
+        new HandleData("заказ-наряды.txt").run();
     }
 
     private void run() throws IOException {
-        BufferedReader bf = new BufferedReader(new InputStreamReader(new FileInputStream("заказ-наряды.txt")));
-        Workbook workbook = new HSSFWorkbook();
+        writeInSheet();
+    }
+
+    public void writeInSheet() throws IOException {
+
         Sheet sheetService = workbook.createSheet("Service");
         Sheet sheetProduct = workbook.createSheet("Product");
         Row row;
@@ -72,25 +82,9 @@ public class HandleData {
 
         workbook.write(new FileOutputStream("заказ наряды.xls"));
         workbook.close();
+    }
 
-        /*PrintWriter pw = new PrintWriter(new FileOutputStream("service.txt", true));
-        PrintWriter pwProduct = new PrintWriter(new FileOutputStream("products.txt", true));
-        String line1, line2;
-        while(bf.ready()){
-            line1 = bf.readLine();
-            line2 = bf.readLine();
-            if(!line2.contains("null")){
-                pwProduct.println(line1);
-                pwProduct.println(line2);
-                pwProduct.flush();
-            } else {
-                pw.println(line1);
-                pw.flush();
-            }
-
-        }
-        pwProduct.close();
-        pw.close();*/
+    public void writeInSheet(OrderOutfitXmlToXls order) {
 
     }
 }
