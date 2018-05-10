@@ -31,7 +31,7 @@ public class Test {
                     }
 
         }*/
-        OrderOutfitXmlToXls order = new OrderOutfitXmlToXls("xml/апрель  16.04  ИП заказ наряды.xml.tmp.xml");
+        OrderOutfitXmlToXls order = new OrderOutfitXmlToXls("xml/апрель  с 16.04 по 10.05   ИП заказ наряды.xml.tmp.xml");
         System.out.println(order.getOrderAt(0));
         order.writeInXls();
         //System.out.println(Double.parseDouble(str.replaceAll("[ ]", "")));

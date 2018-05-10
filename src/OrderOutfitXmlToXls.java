@@ -113,7 +113,7 @@ public class OrderOutfitXmlToXls {
         for(int i = 0; i < list.getLength(); i++) {
             Node child = list.item(i);
             switch (child.getNodeName()) {
-                case "Caption":
+                case "DisplayAs":
                     return new Contragent(child.getTextContent(), npp);
             }
         }
@@ -137,7 +137,13 @@ public class OrderOutfitXmlToXls {
         return orderOutfit.getOrderAt(index);
     }
 
-    public void writeInXls() throws FileNotFoundException {
-        HandleData handleData = new HandleData("order outfit.txt");
+    public void writeInXls() throws IOException {
+        HandleData handleData = new HandleData();
+        for(Order order : orderOutfit.getListOfOrder())
+            if(order.getSumOfProducts() != 0.)
+            handleData.writeOrderWithProducts(order);
+        for(Order order: orderOutfit.getListOfOnlyService())
+            handleData.writeOrderWithService(order);
+        handleData.close();
     }
 }

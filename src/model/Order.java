@@ -1,11 +1,14 @@
 package model;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class Order {
     private List<ItemsProduct> products;
     private int number;
-    private String date;
+    private Date date;
     private double totalSum;
     private String caption;
     private double sumOfService;
@@ -37,12 +40,18 @@ public class Order {
         this.number = number;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
     public void setDate(String date) {
-        this.date = date;
+        SimpleDateFormat formatterFrom = new SimpleDateFormat("yyyy-MM-dd, HH:mm:ss");
+        try {
+            this.date = formatterFrom.parse(date.replace("T", ", "));
+        } catch (ParseException e) {
+            e.printStackTrace();
+            this.date = null;
+        }
     }
 
     public double getTotalSum() {

@@ -1,3 +1,5 @@
+import model.ItemsProduct;
+import model.Order;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -9,11 +11,28 @@ import java.util.Arrays;
 public class HandleData {
     private BufferedReader bf;
     private Workbook workbook;
+    private Sheet sheetService;
+    private Sheet sheetProduct;
+    private int rowProducts;
+    private int countService;
 
     public HandleData(String fileName) throws FileNotFoundException {
-        BufferedReader bf = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
-        Workbook workbook = new HSSFWorkbook();
+        bf = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
+        workbook = new HSSFWorkbook();
+        sheetService = workbook.createSheet("Service");
+        sheetProduct = workbook.createSheet("Product");
+        rowProducts = 0;
+        countService = 0;
     }
+
+    public HandleData() throws FileNotFoundException {
+        workbook = new HSSFWorkbook();
+        sheetService = workbook.createSheet("Service");
+        sheetProduct = workbook.createSheet("Product");
+        rowProducts = 0;
+        countService = 0;
+    }
+
 
     public static void main(String[] args) throws IOException {
         new HandleData("заказ-наряды.txt").run();
@@ -23,10 +42,33 @@ public class HandleData {
         writeInSheet();
     }
 
-    public void writeInSheet() throws IOException {
+    public void writeOrderWithProducts(Order order){
+        Row row = sheetProduct.createRow(rowProducts++);
+        writeCommonInformation(row, order);
+        for(ItemsProduct itemsProduct : order.getProducts()){
+            row = sheetProduct.createRow(rowProducts++);
+            row.createCell(0).setCellValue(itemsProduct.getProduct().getOriginalCode());
+            row.createCell(1).setCellValue(itemsProduct.getAmount());
+            row.createCell(2).setCellValue(itemsProduct.getPrice());
+            row.createCell(3).setCellValue(itemsProduct.getSum());
+        }
+    }
 
-        Sheet sheetService = workbook.createSheet("Service");
-        Sheet sheetProduct = workbook.createSheet("Product");
+    private void writeCommonInformation(Row row, Order order){
+        row.createCell(0).setCellValue(order.getNumber());
+        row.createCell(1).setCellValue(order.getContragent().getName());
+        row.createCell(2).setCellValue(order.getDate());
+        row.createCell(3).setCellValue(order.getSumOfProducts());
+        row.createCell(4).setCellValue(order.getSumOfService());
+        row.createCell(5).setCellValue(order.getTotalSum());
+    }
+
+    public void writeOrderWithService(Order order){
+        Row row = sheetService.createRow(countService++);
+        writeCommonInformation(row, order);
+    }
+
+    public void writeInSheet() throws IOException {
         Row row;
         int countService = 0;
         int countProduct = 0;
@@ -84,7 +126,8 @@ public class HandleData {
         workbook.close();
     }
 
-    public void writeInSheet(OrderOutfitXmlToXls order) {
-
+    public void close() throws IOException {
+        workbook.write(new FileOutputStream("заказ наряды.xls"));
+        workbook.close();
     }
 }
