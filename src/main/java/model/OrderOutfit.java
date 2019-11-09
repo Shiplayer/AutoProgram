@@ -38,6 +38,7 @@ public class OrderOutfit {
     }
 
     public Order getOrderAt(int index){
+        System.out.println(toString());
         return listOfOrder.get(index);
     }
 

@@ -1,9 +1,7 @@
 import model.ItemsProduct;
 import model.Order;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 
 import java.io.*;
 import java.util.Arrays;
@@ -45,6 +43,7 @@ public class HandleData {
     public void writeOrderWithProducts(Order order){
         Row row = sheetProduct.createRow(rowProducts++);
         writeCommonInformation(row, order);
+        row.createCell(6).setCellValue(order.getProducts().size());
         for(ItemsProduct itemsProduct : order.getProducts()){
             row = sheetProduct.createRow(rowProducts++);
             row.createCell(0).setCellValue(itemsProduct.getProduct().getOriginalCode());
@@ -55,12 +54,17 @@ public class HandleData {
     }
 
     private void writeCommonInformation(Row row, Order order){
-        row.createCell(0).setCellValue(order.getNumber());
-        row.createCell(1).setCellValue(order.getContragent().getName());
-        row.createCell(2).setCellValue(order.getDate());
-        row.createCell(3).setCellValue(order.getSumOfProducts());
-        row.createCell(4).setCellValue(order.getSumOfService());
-        row.createCell(5).setCellValue(order.getTotalSum());
+        try{
+            row.createCell(0).setCellValue(order.getNumber());
+            row.createCell(1).setCellValue(order.getContragent().getName());
+            row.createCell(2).setCellValue(order.getDate());
+            row.createCell(3).setCellValue(order.getSumOfProducts());
+            row.createCell(4).setCellValue(order.getSumOfService());
+            row.createCell(5).setCellValue(order.getTotalSum());
+        } catch (NullPointerException e){
+            System.out.println(order.getNumber());
+            e.printStackTrace();
+        }
     }
 
     public void writeOrderWithService(Order order){

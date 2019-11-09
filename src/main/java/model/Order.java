@@ -8,7 +8,7 @@ import java.util.List;
 public class Order {
     private List<ItemsProduct> products;
     private int number;
-    private Date date;
+    private String date;
     private double totalSum;
     private String caption;
     private double sumOfService;
@@ -40,14 +40,15 @@ public class Order {
         this.number = number;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
     public void setDate(String date) {
         SimpleDateFormat formatterFrom = new SimpleDateFormat("yyyy-MM-dd, HH:mm:ss");
+        SimpleDateFormat formatterTo = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         try {
-            this.date = formatterFrom.parse(date.replace("T", ", "));
+            this.date = formatterTo.format(formatterFrom.parse(date.replace("T", ", ")));
         } catch (ParseException e) {
             e.printStackTrace();
             this.date = null;

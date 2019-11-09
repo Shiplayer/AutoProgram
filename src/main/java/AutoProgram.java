@@ -60,7 +60,7 @@ public class AutoProgram {
     public Color color;
     public Color colorClosed = new Color(99, 150,239);
     public Color colorInWork = new Color(181,239,247);
-    public Color colorRefual = new Color(231,113,156);
+    public Color colorRefusal = new Color(231,113,156);
     public Color colorDraft = new Color(156,255,156);
     public Color colorSelected = new Color(49, 105,198);
     public Color white = new Color(255,255,255);
@@ -85,7 +85,7 @@ public class AutoProgram {
                 docks[i] = Status.DRAFT;
             if(color.equals(colorInWork))
                 docks[i] = Status.IN_WORK;
-            if(color.equals(colorRefual))
+            if(color.equals(colorRefusal))
                 docks[i] = Status.REFUSAL;
         }
         color = new Color(bi.getRGB(1140, 260 + 21 * d));
@@ -261,7 +261,7 @@ public class AutoProgram {
             return Status.DRAFT;
         if(color.equals(colorInWork))
             return Status.IN_WORK;
-        if(color.equals(colorRefual))
+        if(color.equals(colorRefusal))
             return Status.REFUSAL;
         return Status.WHITE;
     }
