@@ -1,3 +1,4 @@
+import interfaces.IOrderOutfitXmlToXls;
 import model.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -7,32 +8,29 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OrderOutfitXmlToXls {
-    private Document document;
-    private OrderOutfitBuilder orderOutfitBuilder;
-    OrderOutfit orderOutfit;
+public class OrderOutfitXmlToXls implements IOrderOutfitXmlToXls {
+    private OrderOutfit orderOutfit;
 
     public OrderOutfitXmlToXls(String file) throws ParserConfigurationException, IOException, SAXException {
-        document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File(file));
-        orderOutfitBuilder = OrderOutfitBuilder.getInstance();
+        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File(file));
+        OrderOutfitBuilder orderOutfitBuilder = OrderOutfitBuilder.getInstance();
         NodeList nodeList = document.getDocumentElement().getChildNodes();
-        for(int i = 0; i < nodeList.getLength(); i++) {
+        for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
             switch (node.getNodeName()) {
                 case "Contragent":
                     Contragent contragent = loadContagentInBuilder(node);
-                    if(contragent != null)
+                    if (contragent != null)
                         orderOutfitBuilder.addContragent(contragent);
                     break;
                 case "Ware":
                     System.out.println(node.getAttributes().getNamedItem("Npp").getNodeValue());
                     Product product = loadInBuilder(node);
-                    if(product != null)
+                    if (product != null)
                         orderOutfitBuilder.addProduct(product);
                     break;
                 case "OrderOrder":
@@ -46,9 +44,9 @@ public class OrderOutfitXmlToXls {
     private Order loadOrderInBuilder(Node node) {
         NodeList nodeList = node.getChildNodes();
         Order order = new Order();
-        for(int i = 0; i < nodeList.getLength(); i++){
+        for (int i = 0; i < nodeList.getLength(); i++) {
             Node child = nodeList.item(i);
-            switch (child.getNodeName()){
+            switch (child.getNodeName()) {
                 case "Items":
                     order.setProducts(handleItems(child.getChildNodes()));
                     break;
@@ -79,12 +77,12 @@ public class OrderOutfitXmlToXls {
 
     private List<ItemsProduct> handleItems(NodeList items) {
         List<ItemsProduct> list = new ArrayList<>();
-        for(int i = 0; i < items.getLength(); i++){
+        for (int i = 0; i < items.getLength(); i++) {
             NodeList itemFields = items.item(i).getChildNodes();
             ItemsProduct product = new ItemsProduct();
-            for(int j = 0; j < itemFields.getLength(); j++){
+            for (int j = 0; j < itemFields.getLength(); j++) {
                 Node field = itemFields.item(j);
-                switch (field.getNodeName()){
+                switch (field.getNodeName()) {
                     case "Ware":
                         product.setNpp(field.getAttributes().getNamedItem("Npp").getNodeValue());
                         break;
@@ -99,30 +97,30 @@ public class OrderOutfitXmlToXls {
                         break;
                 }
             }
-            if(!items.item(i).getTextContent().trim().isEmpty())
+            if (!items.item(i).getTextContent().trim().isEmpty())
                 list.add(product);
         }
         return list;
     }
 
     private Contragent loadContagentInBuilder(Node node) {
-        if(node.getAttributes().getNamedItem("IsOurFirm").getNodeValue().equals("True"))
+        if (node.getAttributes().getNamedItem("IsOurFirm").getNodeValue().equals("True"))
             return null;
         String npp = node.getAttributes().getNamedItem("Npp").getNodeValue();
         NodeList list = node.getChildNodes();
-        for(int i = 0; i < list.getLength(); i++) {
+        for (int i = 0; i < list.getLength(); i++) {
             Node child = list.item(i);
             switch (child.getNodeName()) {
                 case "DisplayAs":
                     return new Contragent(child.getTextContent(), npp);
             }
         }
-         return null;
+        return null;
     }
 
     private Product loadInBuilder(Node node) {
         NodeList list = node.getChildNodes();
-        for(int i = 0; i < list.getLength(); i++) {
+        for (int i = 0; i < list.getLength(); i++) {
             Node child = list.item(i);
             if (child.getNodeName().equals("OriginalCode")) {
                 System.out.println(child.getTextContent());
@@ -133,17 +131,20 @@ public class OrderOutfitXmlToXls {
         return null;
     }
 
-    public Order getOrderAt(int index){
+    public Order getOrderAt(int index) {
         return orderOutfit.getOrderAt(index);
     }
 
+    @Override
     public void writeInXls() throws IOException {
-        HandleData handleData = new HandleData();
-        for(Order order : orderOutfit.getListOfOrder())
-            if(order.getSumOfProducts() != 0.)
-            handleData.writeOrderWithProducts(order);
-        for(Order order: orderOutfit.getListOfOnlyService())
+        DataHandler handleData = new DataHandler();
+        for (Order order : orderOutfit.getListOfOrder())
+            if (order.getSumOfProducts() != 0.)
+                handleData.writeOrderWithProducts(order);
+
+        for (Order order : orderOutfit.getListOfOnlyService())
             handleData.writeOrderWithService(order);
+
         handleData.close();
     }
 }
